@@ -1,22 +1,14 @@
-import { addHexPrefix } from 'ethereumjs-util';
+import { addHexPrefix, isHexString } from 'ethereumjs-util';
 import * as actionConstants from '../../store/actionConstants';
 import { ALERT_TYPES } from '../../../shared/constants/alerts';
 import { NETWORK_TYPE_RPC } from '../../../shared/constants/network';
 import {
   accountsWithSendEtherInfoSelector,
   getAddressBook,
-  txDataSelector,
 } from '../../selectors';
-import { hideModal, hideSidebar, updateTransaction } from '../../store/actions';
-import {
-  resetCustomData,
-  setCustomGasLimit,
-  setCustomGasPrice,
-} from '../gas/gas.duck';
+import { updateTransaction } from '../../store/actions';
+import { setCustomGasLimit, setCustomGasPrice } from '../gas/gas.duck';
 import { decGWEIToHexWEI } from '../../helpers/utils/conversions.util';
-import { TRANSACTION_STATUSES } from '../../../shared/constants/transaction';
-import { getStatusKey } from '../../helpers/utils/transactions.util';
-import { PENDING_STATUS_HASH } from '../../helpers/constants/transactions';
 
 export default function reduceMetamask(state = {}, action) {
   const metamaskState = {
@@ -220,7 +212,6 @@ export function updateTransactionGasFees({
   gasLimit,
   maxPriorityFeePerGas,
   maxFeePerGas,
-  isModal,
   transaction,
   expectHexWei = false,
 }) {
@@ -241,13 +232,12 @@ export function updateTransactionGasFees({
       ...transaction,
       txParams: txParamsCopy,
     };
-    dispatch(setCustomGasLimit(addHexPrefix(gasLimit.toString(16))));
-    await dispatch(updateTransaction(updatedTx));
 
-    if (isModal) {
-      dispatch(resetCustomData());
-      dispatch(hideModal());
-    }
+    const customGasLimit = isHexString(addHexPrefix(gasLimit))
+      ? addHexPrefix(gasLimit)
+      : addHexPrefix(gasLimit.toString(16));
+    dispatch(setCustomGasLimit(customGasLimit));
+    await dispatch(updateTransaction(updatedTx));
   };
 }
 

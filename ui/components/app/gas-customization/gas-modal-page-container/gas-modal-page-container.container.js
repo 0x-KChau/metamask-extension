@@ -5,7 +5,6 @@ import {
   createRetryTransaction,
   createSpeedUpTransaction,
   hideSidebar,
-  updateTransaction,
 } from '../../../../store/actions';
 import {
   setCustomGasPrice,
@@ -251,6 +250,7 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => {
     updateTransactionGasFees: dispatchUpdateTransactionGasFees,
     hideSidebar: dispatchHideSidebar,
     cancelAndClose: dispatchCancelAndClose,
+    hideModal: dispatchHideModal,
     ...otherDispatchProps
   } = dispatchProps;
 
@@ -272,6 +272,8 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => {
           transaction,
           isModal: true,
         });
+        dispatchHideModal();
+        dispatchCancelAndClose();
       } else if (isSpeedUp) {
         dispatchCreateSpeedUpTransaction(txId, gasPrice, gasLimit);
         dispatchHideSidebar();
